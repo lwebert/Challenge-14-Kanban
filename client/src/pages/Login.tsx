@@ -1,55 +1,67 @@
-import { useState, FormEvent, ChangeEvent } from "react";
+import { useState, FormEvent, ChangeEvent } from 'react';
 
 import Auth from '../utils/auth';
-import { login } from "../api/authAPI";
+import { login } from '../api/authAPI';
 
 const Login = () => {
-  const [loginData, setLoginData] = useState({
-    username: '',
-    password: ''
-  });
+	//TODO: Add functionality to give feedback when entering wrong username or password!
+	const [invalidLoginMessage, setInvalidLoginMessage] =
+		useState<boolean>(false);
 
-  const handleChange = (e: ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
-    const { name, value } = e.target;
-    setLoginData({
-      ...loginData,
-      [name]: value
-    });
-  };
+	const [loginData, setLoginData] = useState({
+		username: '',
+		password: '',
+	});
 
-  const handleSubmit = async (e: FormEvent) => {
-    e.preventDefault();
-    try {
-      const data = await login(loginData);
-      Auth.login(data.token);
-    } catch (err) {
-      console.error('Failed to login', err);
-    }
-  };
+	const handleChange = (
+		e: ChangeEvent<HTMLInputElement | HTMLSelectElement>
+	) => {
+		const { name, value } = e.target;
+		setLoginData({
+			...loginData,
+			[name]: value,
+		});
+	};
 
-  return (
-    <div className='container'>
-      <form className='form' onSubmit={handleSubmit}>
-        <h1>Login</h1>
-        <label >Username</label>
-        <input 
-          type='text'
-          name='username'
-          value={loginData.username || ''}
-          onChange={handleChange}
-        />
-      <label>Password</label>
-        <input 
-          type='password'
-          name='password'
-          value={loginData.password || ''}
-          onChange={handleChange}
-        />
-        <button type='submit'>Submit Form</button>
-      </form>
-    </div>
-    
-  )
+	const handleSubmit = async (e: FormEvent) => {
+		e.preventDefault();
+		try {
+			const data = await login(loginData);
+			Auth.login(data.token);
+			setInvalidLoginMessage(false); //Clears invalid login message on successful login
+		} catch (err) {
+			console.error('Failed to login', err);
+			setInvalidLoginMessage(true);
+		}
+	};
+
+	return (
+		<div className="container">
+			<form className="form" onSubmit={handleSubmit}>
+				<h1>Login</h1>
+				<label>Username</label>
+				<input
+					type="text"
+					name="username"
+					value={loginData.username || ''}
+					onChange={handleChange}
+				/>
+				<label>Password</label>
+				<input
+					type="password"
+					name="password"
+					value={loginData.password || ''}
+					onChange={handleChange}
+				/>
+				<button type="submit">Submit Form</button>
+				{invalidLoginMessage && (
+					<p style={{ color: 'red' }}>
+						Invalid username or password. Please try again.
+					</p>
+				)}
+			</form>
+		</div>
+	);
 };
 
 export default Login;
